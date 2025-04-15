@@ -36,7 +36,7 @@ body {
 	height: 100%;
 	font-family: "Mulish", sans-serif;
 	-webkit-font-smoothing: antialiased;
-	background: #0b0c2a;
+	background: #362849;
 }
 
 h1,
@@ -134,7 +134,7 @@ ol {
 	top: -6px;
 	height: 32px;
 	width: 4px;
-	background: #e53637;
+	background: #e8daff;
 	content: "";
 }
 
@@ -327,11 +327,11 @@ ol {
 -----------------------*/
 
 .header {
-	background: #070720;
+	background: #241a33;
 }
 
 .header__logo {
-	padding: 20px 0 17px;
+	padding: 30px 0 27px;
 }
 
 .header__logo a {
@@ -350,7 +350,7 @@ ol {
 }
 
 .header__menu ul li.active a {
-	background: #e53637;
+	background: #6d5196;
 	color: #ffffff;
 }
 
@@ -377,7 +377,7 @@ ol {
 	left: 0;
 	top: 82px;
 	width: 150px;
-	background: #ffffff;
+	background: #6d5196;
 	text-align: left;
 	padding: 5px 0;
 	z-index: 9;
@@ -395,14 +395,14 @@ ol {
 
 .header__menu ul li .dropdown li a {
 	font-size: 14px;
-	color: #111111;
+	color: #f1e8ff;
 	font-weight: 500;
 	padding: 5px 20px;
 }
 
 .header__menu ul li a {
 	font-size: 15px;
-	color: #b7b7b7;
+	color: #f1e8ff;
 	display: block;
 	font-weight: 700;
 	-webkit-transition: all, 0.5s;
@@ -660,7 +660,7 @@ ol {
 .product__item__pic .ep {
 	font-size: 13px;
 	color: #ffffff;
-	background: #e53637;
+	background: #a460be;
 	display: inline-block;
 	padding: 2px 12px;
 	border-radius: 4px;
