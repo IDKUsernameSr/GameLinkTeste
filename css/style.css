@@ -347,6 +347,7 @@ ol {
 	display: inline-block;
 	position: relative;
 	margin-right: 16px;
+	font-size: 35px;
 }
 
 .header__menu ul li.active a {
@@ -374,18 +375,19 @@ ol {
 
 .header__menu ul li .dropdown {
 	position: absolute;
-	left: 0;
+	left: -12px;
 	top: 82px;
-	width: 150px;
+	width: 200px;
 	background: #6d5196;
 	text-align: left;
-	padding: 5px 0;
+	padding: 5px 10px;
 	z-index: 9;
 	opacity: 0;
 	visibility: hidden;
 	-webkit-transition: all, 0.3s;
 	-o-transition: all, 0.3s;
 	transition: all, 0.3s;
+	margin-top: 26px;
 }
 
 .header__menu ul li .dropdown li {
@@ -394,10 +396,10 @@ ol {
 }
 
 .header__menu ul li .dropdown li a {
-	font-size: 14px;
+	font-size: 16px;
 	color: #f1e8ff;
 	font-weight: 500;
-	padding: 5px 20px;
+	padding: 7px 20px;
 }
 
 .header__menu ul li a {
@@ -408,7 +410,7 @@ ol {
 	-webkit-transition: all, 0.5s;
 	-o-transition: all, 0.5s;
 	transition: all, 0.5s;
-	padding: 20px;
+	padding: 40px;
 }
 
 .header__menu ul li a span {
@@ -424,9 +426,10 @@ ol {
 
 .header__right a {
 	display: inline-block;
-	font-size: 18px;
+	font-size: 20px;
 	color: #ffffff;
 	margin-right: 30px;
+	margin-top: 18px;
 }
 
 .header__right a:last-child {
@@ -1983,6 +1986,8 @@ ol {
 }
 
 /*--------------------------------- Responsive Media Quaries -----------------------------*/
+@media only screen and (min-width: 1200px) and (max-width: 1300px) {
+	.col-s-1{ }
 
 @media only screen and (min-width: 1200px) and (max-width: 1300px) {
 	.hero {
