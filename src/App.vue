@@ -1,11 +1,14 @@
 <template>
   <div id="app" class="page-wrapper">
+    <!-- cabecario -->
     <Navbar v-if="showNavbar" />
 
     <main class="content">
       <router-view />
     </main>
     
+    
+
     <Footer v-if="showFooter" />
   </div>
 </template>

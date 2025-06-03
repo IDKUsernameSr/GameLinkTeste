@@ -5,6 +5,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-md-8" style="border: 2px solid red;">
+                  <GameList />
                 </div>
                 <div class="col-lg-4 col-md-12" style="border: 2px solid blue;">
                 <Sidebar />
@@ -19,6 +20,7 @@
 <script setup>
 import Sidebar from '../components/Sidebar.vue'
 import CategorySection from '../components/CategorySection.vue'
+import GameList from '../components/GameList.vue'
 
 const acaoProducts = [
   { title: 'The Seven Deadly Sins: Wrath of the Gods', image: '/img/trending/trend-1.jpg' },
