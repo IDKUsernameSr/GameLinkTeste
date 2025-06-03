@@ -23,8 +23,6 @@
 </template>
 
 <script setup>
-import Navbar from '../components/Navbar.vue'
-import Footer from '../components/Footer.vue'
 import Carousel from '../components/Carousel.vue'
 import Sidebar from '../components/Sidebar.vue'
 import CategorySection from '../components/CategorySection.vue'
