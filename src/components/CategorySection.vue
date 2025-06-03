@@ -1,5 +1,5 @@
 <template>
-    <div class="col-lg-8">
+    <div class="col-lg-12">
       <ProductCategorySection
         v-for="(section, index) in sections"
         :key="index"

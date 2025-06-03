@@ -64,7 +64,7 @@
                 <div class="col-lg-2">
                     <div class="header__right">
                         <a href="#" class="search-switch"><span class="icon_search"></span></a>
-                        <a href="./login.html"><span class="icon_profile"></span></a>
+                        <a href="perfil.html"><span class="icon_profile"></span></a>
                     </div>
                 </div>
             </div>
@@ -97,11 +97,11 @@
                         <h3>Entre na sua conta!</h3>
                         <form action="#">
                             <div class="input__item">
-                                <input type="text" placeholder="Endereço de email">
+                                <input id="login-email" type="email" placeholder="Endereço de email">
                                 <span class="icon_mail"></span>
                             </div>
                             <div class="input__item">
-                                <input type="text" placeholder="Senha">
+                                <input id="login-password" type="text" placeholder="Senha">
                                 <span class="icon_lock"></span>
                             </div>
                             <button type="submit" class="site-btn">Entrar</button>
@@ -111,21 +111,21 @@
                 </div>
                 <div class="col-lg-6">
                     <div class="login__register">
-                        <div class="container"
+                        <div class="container">
                             <div class="row">
                                 <div class="signup">
                                     <h3>Cadastre-se!</h3>
                                     <form action="#">
                                         <div class="input__item">
-                                            <input type="text" placeholder="Endereço de email">
+                                            <input id="register-email" type="email" placeholder="Endereço de email">
                                             <span class="icon_mail"></span>
                                         </div>
                                         <div class="input__item">
-                                            <input type="text" placeholder="Seu nome">
+                                            <input id="register-name" type="text" placeholder="Seu nome">
                                             <span class="icon_profile"></span>
                                         </div>
                                         <div class="input__item">
-                                            <input type="text" placeholder="Senha">
+                                            <input id="register-password" type="text" placeholder="Senha">
                                             <span class="icon_lock"></span>
                                         </div>
                                         <button type="submit" class="site-btn">Cadastrar</button>
@@ -193,6 +193,46 @@
     <script src="js/jquery.slicknav.js"></script>
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/main.js"></script>
+    
+    <script>
+    // Store "registered users" in localStorage
+    const saveUser = (email, name, password) => {
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        users.push({ email, name, password });
+        localStorage.setItem("users", JSON.stringify(users));
+    };
+
+    const findUser = (email, password) => {
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        return users.find(u => u.email === email && u.password === password);
+    };
+
+    // Handle registration
+    document.querySelector('.login__register form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById("register-email").value;
+        const name = document.getElementById("register-name").value;
+        const password = document.getElementById("register-password").value;
+
+        saveUser(email, name, password);
+        alert("Cadastro realizado com sucesso!");
+    });
+
+    // Handle login
+    document.querySelector('.login__form form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const email = document.getElementById("login-email").value;
+        const password = document.getElementById("login-password").value;
+
+        const user = findUser(email, password);
+        if (user) {
+            alert(`Bem-vindo, ${user.name}!`);
+            window.location.href = "/perfil.html"
+        } else {
+            alert("Email ou senha incorretos.");
+        }
+    });
+</script>
 
 
 </body>

@@ -27,7 +27,7 @@
   
           <div class="col-lg-3">
             <p>
-              &copy; {{ currentYear }} All rights reserved
+              &copy; {{ currentYear }} GameLink
             </p>
           </div>
         </div>

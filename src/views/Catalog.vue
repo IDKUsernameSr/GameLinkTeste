@@ -1,15 +1,10 @@
 <template>
     <div>
-    <!-- Hero Section Begin -->
-    <Carousel />
-    <!-- Hero Section End -->
-
     <!-- Product Section Begin -->
     <section class="product spad">
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-md-8" style="border: 2px solid red;">
-                    <CategorySection />
                 </div>
                 <div class="col-lg-4 col-md-12" style="border: 2px solid blue;">
                 <Sidebar />
@@ -18,14 +13,12 @@
         </div>
     </section>
 <!-- Product Section End -->
-
 </div>
 </template>
 
 <script setup>
 import Navbar from '../components/Navbar.vue'
 import Footer from '../components/Footer.vue'
-import Carousel from '../components/Carousel.vue'
 import Sidebar from '../components/Sidebar.vue'
 import CategorySection from '../components/CategorySection.vue'
 
@@ -65,10 +58,3 @@ const liveActionProducts = [
   { title: 'Kizumonogatari II', image: '/img/live/live-6.jpg' }
 ]
 </script>
-
-<style scoped>
-.product.spad {
-  background-color: #362849;
-  padding: 50px 0; /* if your template uses it */
-}
-</style>
