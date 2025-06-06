@@ -142,6 +142,16 @@
     <script src="js/owl.carousel.min.js"></script>
     <script src="js/main.js"></script>
 
+    <script>
+  // Check if user is logged in
+  const isLoggedIn = localStorage.getItem("isLoggedIn");
+
+  if (isLoggedIn !== "true") {
+    // Not logged in? Redirect to login page
+    window.location.href = "login.html";
+  }
+</script>
+
 
 </body>
 

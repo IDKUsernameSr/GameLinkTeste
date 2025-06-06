@@ -1,24 +1,12 @@
 {
-  "name": "gamelinkteste",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "concurrently \"npm run dev --prefix frontend\" \"npm run start --prefix backend\""
   },
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^6.7.2",
-    "bootstrap": "^5.3.6",
-    "swiper": "^11.2.7",
-    "vue": "^3.5.13",
-    "vue-router": "^4.5.1",
-    "vue-select": "^4.0.0-beta.6",
-    "vue3-burger-menu": "^1.1.1"
-  },
-  "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.3",
-    "vite": "^6.3.5"
+    "bcryptjs": "^3.0.2",
+    "node-fetch": "^3.3.2"
   }
 }

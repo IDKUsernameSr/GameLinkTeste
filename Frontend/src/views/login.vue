@@ -47,7 +47,7 @@
                   <span class="icon_mail"></span>
                 </div>
                 <div class="input__item">
-                  <input v-model="registerName" type="text" placeholder="Seu nome" />
+                  <input v-model="registerName" type="text" placeholder="Seu usuário" />
                   <span class="icon_profile"></span>
                 </div>
                 <div class="input__item">
@@ -65,10 +65,6 @@
 </template>
 
 <script setup>
-import Navbar from '../components/Navbar.vue'
-import Footer from '../components/Footer.vue'
-import Sidebar from '../components/Sidebar.vue'
-import CategorySection from '../components/CategorySection.vue'
 
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -93,22 +89,67 @@ function findUser(email, password) {
   return users.find(u => u.email === email && u.password === password)
 }
 
-function handleRegister() {
-  saveUser(registerEmail.value, registerName.value, registerPassword.value)
-  alert("Cadastro realizado com sucesso!")
-  registerEmail.value = ''
-  registerName.value = ''
-  registerPassword.value = ''
+async function handleRegister() {
+  try {
+    const res = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        username: registerName.value,
+        email: registerEmail.value,
+        password: registerPassword.value
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(`Erro: ${data.error}`);
+      return;
+    }
+
+    alert('Cadastro realizado com sucesso!');
+    registerEmail.value = ''
+    registerName.value = ''
+    registerPassword.value = ''
+    window.location.reload();
+  } catch (err) {
+    console.error(err);
+    alert('Erro de conexão com o servidor.');
+  }
 }
 
-function handleLogin() {
-  const user = findUser(loginEmail.value, loginPassword.value)
-  if (user) {
+async function handleLogin() {
+  try {
+    const res = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: loginEmail.value,
+        password: loginPassword.value
+      })
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      alert(`Erro: ${data.error}`);
+      return;
+    }
+
+    // Save session info (for now just localStorage)
     localStorage.setItem("isLoggedIn", "true")
-    alert(`Bem-vindo, ${user.name}!`)
+    localStorage.setItem("user", JSON.stringify(data.user))
+
+    alert(`Bem-vindo, ${data.user.username}!`);
     window.location.href = 'perfil.html'
-  } else {
-    alert("Email ou senha incorretos.")
+  } catch (err) {
+    console.error(err);
+    alert('Erro de conexão com o servidor.');
   }
 }
 </script>

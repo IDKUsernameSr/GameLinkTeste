@@ -9,7 +9,12 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-8 col-md-8" style="border: 2px solid red;">
-                    <CategorySection />
+                  <CategorySection
+                    v-for="(games, genre) in gamesByGenre"
+                    :key="genre"
+                    :products="games"
+                    :sectionTitle="genre"
+                  />
                 </div>
                 <div class="col-lg-4 col-md-12" style="border: 2px solid blue;">
                 <Sidebar />
@@ -26,6 +31,41 @@
 import Carousel from '../components/Carousel.vue'
 import Sidebar from '../components/Sidebar.vue'
 import CategorySection from '../components/CategorySection.vue'
+
+import { ref, onMounted, computed } from 'vue';
+
+const igdbGames = ref([]);
+
+onMounted(async () => {
+  const res = await fetch('/api/igdb/gamesWithGenres?q=elden ring');
+
+  const raw = await res.json();
+
+  console.log('IGDB raw result:', raw); // ✅ ADD THIS
+
+  igdbGames.value = raw.map(game => ({
+  title: game.title,
+  image: game.image, // já vem tratado!
+  tags: game.genres
+  }));
+});
+
+const gamesByGenre = computed(() => {
+  const genreMap = {}
+
+  igdbGames.value.forEach(game => {
+    const genres = game.tags?.length ? game.tags : ['Sem gênero']
+
+    genres.forEach(genre => {
+      if (!genreMap[genre]) genreMap[genre] = []
+      genreMap[genre].push(game)
+    })
+  })
+
+  return genreMap
+})
+
+
 
 const acaoProducts = [
   { title: 'The Seven Deadly Sins: Wrath of the Gods', image: '/img/trending/trend-1.jpg' },
