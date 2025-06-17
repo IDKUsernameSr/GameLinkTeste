@@ -1,6 +1,6 @@
 const axios = require('axios');
-const CLIENT_ID = 'lten08kpze2f3ezelxkf1wj87t8ja3';
-const CLIENT_SECRET = 'fjbua6ln4do4nk8ebmbfhfhvs4q5r6';
+const CLIENT_ID = 'a';
+const CLIENT_SECRET = 'a';
 
 async function getAccessToken() {
   const res = await axios.post(
