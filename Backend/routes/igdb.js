@@ -2,32 +2,7 @@ const express = require('express');
 const axios = require('axios');
 
 const router = express.Router();
-
-let cachedToken = null;
-let tokenExpires = 0;
-
-async function getAccessToken() {
-  const now = Date.now();
-
-  if (cachedToken && now < tokenExpires) return cachedToken;
-
-  const res = await axios.post(
-    'https://id.twitch.tv/oauth2/token',
-    new URLSearchParams({
-      client_id: process.env.TWITCH_CLIENT_ID,
-      client_secret: process.env.TWITCH_CLIENT_SECRET,
-      grant_type: 'client_credentials'
-    }),
-    {
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-    }
-  );
-
-  const data = res.data;
-  cachedToken = data.access_token;
-  tokenExpires = now + (data.expires_in * 1000);
-  return cachedToken;
-}
+let cachedToken, tokenExpires = 0;
 
 const genreTranslations = {
   "Role-playing (RPG)": "RPG",
@@ -58,106 +33,83 @@ const genreTranslations = {
   "Stealth": "Furtividade"
 };
 
+async function getAccessToken() {
+  const now = Date.now();
+  if (cachedToken && now < tokenExpires) return cachedToken;
+  const res = await axios.post(
+    'https://id.twitch.tv/oauth2/token',
+    new URLSearchParams({
+      client_id: process.env.TWITCH_CLIENT_ID,
+      client_secret: process.env.TWITCH_CLIENT_SECRET,
+      grant_type: 'client_credentials'
+    }),
+    { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } }
+  );
+  cachedToken = res.data.access_token;
+  tokenExpires = now + res.data.expires_in * 1000;
+  return cachedToken;
+}
+
 router.get('/gamesWithGenres', async (req, res) => {
   const query = (req.query.q || '').trim();
 
   try {
     const token = await getAccessToken();
-    let games = [];
+    let games;
 
     if (query) {
-      // Regular search
-      const gameRes = await axios.post(
+      // Search flow
+      const { data } = await axios.post(
         'https://api.igdb.com/v4/games',
-        `search "${query}"; fields name, cover.url, genres; limit 10;`,
-        {
-          headers: {
-            'Client-ID': process.env.TWITCH_CLIENT_ID,
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'text/plain'
-          }
-        }
+        `search "${query}"; fields name,cover.url,genres; limit 30;`,
+        { headers: { 'Client-ID': process.env.TWITCH_CLIENT_ID, Authorization: `Bearer ${token}`, 'Content-Type': 'text/plain' } }
       );
-      games = gameRes.data;
+      games = data;
     } else {
-      // 🧠 Get top games by Steam Total Reviews (PopScore)
-      const popScoreRes = await axios.post(
-        'https://api.igdb.com/v4/popularity_types',
-        `
-          fields game, value;
-          where popularity_type = 1;
-          sort value desc;
-          limit 10;
-        `,
-        {
-          headers: {
-            'Client-ID': process.env.TWITCH_CLIENT_ID,
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'text/plain'
-          }
-        }
+      // Popularity flow using Steam Total Reviews (popularity_type = 8)
+      const popRes = await axios.post(
+        'https://api.igdb.com/v4/popularity_primitives',
+        `fields game_id,value; where popularity_type = 3; sort value desc; limit 30;`,
+        { headers: { 'Client-ID': process.env.TWITCH_CLIENT_ID, Authorization: `Bearer ${token}`, 'Content-Type': 'text/plain' } }
       );
-
-      const gameIds = popScoreRes.data.map(p => p.game);
-
-      const gameRes = await axios.post(
+      const ids = popRes.data.map(p => p.game_id).join(',');
+      const { data } = await axios.post(
         'https://api.igdb.com/v4/games',
-        `
-          fields name, cover.url, genres;
-          where id = (${gameIds.join(',')});
-        `,
-        {
-          headers: {
-            'Client-ID': process.env.TWITCH_CLIENT_ID,
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'text/plain'
-          }
-        }
+        `fields name,cover.url,genres; where id = (${ids}); limit 30;`,
+        { headers: { 'Client-ID': process.env.TWITCH_CLIENT_ID, Authorization: `Bearer ${token}`, 'Content-Type': 'text/plain' } }
       );
-
-      games = gameRes.data;
+      games = data;
     }
 
-    // 👇 Get unique genre IDs
+    // Get genre names and translate
     const genreIds = [...new Set(games.flatMap(g => g.genres || []))];
-
-    // 👇 Map genre names
     let genreMap = {};
     if (genreIds.length) {
-      const genreRes = await axios.post(
+      const { data: genreData } = await axios.post(
         'https://api.igdb.com/v4/genres',
-        `fields id, name; where id = (${genreIds.join(',')});`,
-        {
-          headers: {
-            'Client-ID': process.env.TWITCH_CLIENT_ID,
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'text/plain'
-          }
-        }
+        `fields id,name; where id = (${genreIds.join(',')});`,
+        { headers: { 'Client-ID': process.env.TWITCH_CLIENT_ID, Authorization: `Bearer ${token}`, 'Content-Type': 'text/plain' } }
       );
-
-      const genres = genreRes.data;
-      genreMap = Object.fromEntries(genres.map(g => [g.id, g.name]));
+      genreMap = Object.fromEntries(genreData.map(g => [g.id, g.name]));
     }
 
-    // 👇 Enrich game data
-    const enrichedGames = games.map(game => ({
+    const enriched = games.map(game => ({
       title: game.name,
-      image: game.cover?.url
-        ? 'https:' + game.cover.url.replace('t_thumb', 't_cover_big')
-        : 'https://via.placeholder.com/300x400?text=No+Image',
-      genres: (game.genres || []).map(id => {
-        const english = genreMap[id] || 'Desconhecido';
-        return genreTranslations[english] || english;
-      })
+      image: game.cover?.url ? 'https:' + game.cover.url.replace('t_thumb', 't_cover_big') : 'https://via.placeholder.com/300x400?text=No+Image',
+      genres: (game.genres || [])
+        .map(id => {
+          const english = genreMap[id];
+          return genreTranslations[english] || english;
+        })
+        .filter(name => name !== undefined && name !== 'Desconhecido')
     }));
 
-    res.json(enrichedGames);
+    res.json(enriched);
+
   } catch (err) {
-    console.error('Erro ao buscar dados do IGDB:', err);
-    res.status(500).json({ error: 'Erro ao buscar jogos do IGDB', details: err.message });
+    console.error('Error in /gamesWithGenres:', err.response?.data || err.message);
+    res.status(500).json({ error: 'Erro ao buscar jogos', details: err.message });
   }
 });
-
 
 module.exports = router;

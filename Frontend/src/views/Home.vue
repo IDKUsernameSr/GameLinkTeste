@@ -62,15 +62,18 @@ const gamesByGenre = computed(() => {
 
   igdbGames.value.forEach(game => {
     const genres = game.tags?.length ? game.tags : ['Sem gênero'];
+    const firstGenre = genres[0]; // only the first genre matters
 
-    genres.forEach(genre => {
-      if (!genreMap[genre]) genreMap[genre] = [];
-      genreMap[genre].push(game);
-    });
+    if (!genreMap[firstGenre]) {
+      genreMap[firstGenre] = [];
+    }
+
+    genreMap[firstGenre].push(game);
   });
 
   return genreMap;
 });
+
 
 
 
