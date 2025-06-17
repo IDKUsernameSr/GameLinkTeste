@@ -69,12 +69,6 @@ function getFullImageUrl(path) {
   return path;
 }
 
-  watchEffect(() => {
-  console.log("📦 Recebido products:", props.products);
-  console.log("image URL:", products.image || '(no image)');
-  });
-
-  console.log("product.image = ", products.image);
   </script>
   
   <style scoped>

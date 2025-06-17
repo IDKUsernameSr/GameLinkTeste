@@ -23,10 +23,6 @@
     }
   });
   
-  
-  watchEffect(() => {
-    console.log("🏷️ Gênero:", props.genre) // ✅ logs all
-  });
   // const sections = [
   //   {
   //     title: 'Ação',

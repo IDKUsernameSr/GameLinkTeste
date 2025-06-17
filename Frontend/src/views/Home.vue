@@ -33,37 +33,44 @@ import Sidebar from '../components/Sidebar.vue'
 import CategorySection from '../components/CategorySection.vue'
 
 import { ref, onMounted, computed } from 'vue';
+import api from '../api';
 
 const igdbGames = ref([]);
+const loading = ref(true);
+const error = ref(null);
 
 onMounted(async () => {
-  const res = await fetch('/api/igdb/gamesWithGenres?q=elden ring');
+  try {
+    const res = await api.get('/igdb/gamesWithGenres?q=');
+    console.log('IGDB raw result:', res.data); // ✅ Debug
 
-  const raw = await res.json();
-
-  console.log('IGDB raw result:', raw); // ✅ ADD THIS
-
-  igdbGames.value = raw.map(game => ({
-  title: game.title,
-  image: game.image, // já vem tratado!
-  tags: game.genres
-  }));
+    igdbGames.value = res.data.map(game => ({
+      title: game.title,
+      image: game.image,
+      tags: game.genres
+    }));
+  } catch (err) {
+    console.error('❌ Error fetching IGDB games:', err);
+    error.value = 'Erro ao carregar os jogos';
+  } finally {
+    loading.value = false;
+  }
 });
 
 const gamesByGenre = computed(() => {
-  const genreMap = {}
+  const genreMap = {};
 
   igdbGames.value.forEach(game => {
-    const genres = game.tags?.length ? game.tags : ['Sem gênero']
+    const genres = game.tags?.length ? game.tags : ['Sem gênero'];
 
     genres.forEach(genre => {
-      if (!genreMap[genre]) genreMap[genre] = []
-      genreMap[genre].push(game)
-    })
-  })
+      if (!genreMap[genre]) genreMap[genre] = [];
+      genreMap[genre].push(game);
+    });
+  });
 
-  return genreMap
-})
+  return genreMap;
+});
 
 
 
