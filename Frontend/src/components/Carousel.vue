@@ -14,7 +14,7 @@
     >
           <SwiperSlide v-for="(slide, index) in slides" :key="index">
             <div class="hero__items" :style="{ backgroundImage: `url(${slide.image})` }">
-              <div class="hero__overlay"></div>
+              <!-- <div class="hero__overlay"></div> -->
               <div class="row">
                 <div class="col-lg-6">
                   <div class="hero__text">
@@ -48,19 +48,19 @@ const slides = [
     label: 'Adventure',
     title: 'Fate / Stay Night: Unlimited Blade Works',
     description: 'After 30 days of travel across the world...',
-    image: '/img/hero/hero-1.jpg'
+    image: '/img/template-zelda.jpg'
   },
   {
     label: 'Adventure',
     title: 'Fate / Stay Night: Unlimited Blade Works',
     description: 'After 30 days of travel across the world...',
-    image: '/img/hero/hero-1.jpg'
+    image: '/img/template-zelda.jpg'
   },
   {
     label: 'Adventure',
     title: 'Fate / Stay Night: Unlimited Blade Works',
     description: 'After 30 days of travel across the world...',
-    image: '/img/hero/hero-1.jpg'
+    image: '/img/template-zelda.jpg'
   }
 ]
 </script>

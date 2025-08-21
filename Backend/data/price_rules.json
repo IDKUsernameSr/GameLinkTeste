@@ -1,0 +1,21 @@
+[
+  {
+    "currency": "BRL",
+    "daily_new_cents": 129,
+    "daily_1y_cents": 119,
+    "daily_3y_cents": 109,
+    "daily_10y_cents": 99,
+    "daily_legacy_cents": 79,
+    "weekly_factor": 2.5,
+    "monthly_factor": 5,
+    "deluxe_multiplier": 1.02,
+    "popularity_low": 0.95,
+    "popularity_med": 1,
+    "popularity_high": 1.03,
+    "pc_multiplier": 1,
+    "playstation_multiplier": 0.98,
+    "xbox_multiplier": 0.98,
+    "nintendo_multiplier": 0.98,
+    "active": true
+  }
+]

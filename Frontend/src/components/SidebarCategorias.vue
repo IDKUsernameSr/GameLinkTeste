@@ -37,7 +37,7 @@ export default {
   flex-shrink: 0;
   height: 70vh;
   border-radius: 10px;
-  font-family: ;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .sidebar h2 {

@@ -8,7 +8,8 @@
     <section class="product spad">
         <div class="container">
             <div class="row">
-                <div class="col-lg-8 col-md-8" style="border: 2px solid red;">
+                <div class="col-lg-8 col-md-8">
+                  <!-- style="border: 2px solid red;" -->
                   <CategorySection
                     v-for="(games, genre) in gamesByGenre"
                     :key="genre"
@@ -16,8 +17,9 @@
                     :sectionTitle="genre"
                   />
                 </div>
-                <div class="col-lg-4 col-md-12" style="border: 2px solid blue;">
-                <Sidebar />
+                <div class="col-lg-4 col-md-12">
+                  <!-- style="border: 2px solid blue;" -->
+                <Sidebar :limit="6" initialWindow="day" />
                 </div>
             </div>
         </div>

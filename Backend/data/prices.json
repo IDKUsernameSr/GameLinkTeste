@@ -1,0 +1,50 @@
+[
+  {
+    "igdb_id": 123,
+    "platform_id": 6,
+    "edition": "Standard",
+    "currency": "BRL",
+    "daily_cents": 79,
+    "weekly_cents": 199,
+    "monthly_cents": 399,
+    "is_override": false,
+    "updated_at": "2025-08-21T02:21:37.090Z",
+    "created_at": "2025-08-21T02:21:37.090Z"
+  },
+  {
+    "igdb_id": 123,
+    "platform_id": 6,
+    "edition": "Deluxe",
+    "currency": "BRL",
+    "daily_cents": 89,
+    "weekly_cents": 209,
+    "monthly_cents": 409,
+    "is_override": false,
+    "updated_at": "2025-08-21T02:21:37.092Z",
+    "created_at": "2025-08-21T02:21:37.092Z"
+  },
+  {
+    "igdb_id": 123,
+    "platform_id": 14,
+    "edition": "Standard",
+    "currency": "BRL",
+    "daily_cents": 79,
+    "weekly_cents": 199,
+    "monthly_cents": 399,
+    "is_override": false,
+    "updated_at": "2025-08-21T02:21:37.092Z",
+    "created_at": "2025-08-21T02:21:37.092Z"
+  },
+  {
+    "igdb_id": 123,
+    "platform_id": 14,
+    "edition": "Deluxe",
+    "currency": "BRL",
+    "daily_cents": 89,
+    "weekly_cents": 209,
+    "monthly_cents": 409,
+    "is_override": false,
+    "updated_at": "2025-08-21T02:21:37.093Z",
+    "created_at": "2025-08-21T02:21:37.093Z"
+  }
+]
