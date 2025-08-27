@@ -1,76 +1,132 @@
 <template>
-    <div class="col-lg-12">
-    <ProductCategorySection
-      :products="products"
-      :sectionTitle="sectionTitle"
-    />
+  <section class="category-section">
+    <h3 v-if="sectionTitle" class="section-title">{{ sectionTitle }}</h3>
+
+    <!-- Lista no mesmo layout do Sidebar -->
+    <div class="list">
+      <a
+        v-for="g in items"
+        :key="g.id"
+        class="card"
+        :href="`/games/${g.id}`"
+        :aria-label="g.name"
+      >
+        <img
+          v-if="g.coverUrl"
+          :src="g.coverUrl"
+          :alt="g.name"
+          class="img"
+          loading="lazy"
+          decoding="async"
+        />
+        <div v-else class="img placeholder"></div>
+        <div class="overlay"></div>
+        <div class="title">{{ g.name }}</div>
+      </a>
     </div>
-  </template>
-  
-  <script setup>
-   import { watchEffect } from 'vue';
+  </section>
+</template>
 
-  import ProductCategorySection from './ProductCategorySection.vue'
+<script setup>
+import { computed } from 'vue'
 
-  const props = defineProps({
-    products: {
-      type: Array,
-      required: true
-    },
-    sectionTitle: {
-      type: String,
-      default: ''
-    }
-  });
-  
-  // const sections = [
-  //   {
-  //     title: 'Ação',
-  //     imgBasePath: '/img/trending/',
-  //     items: [
-  //       { title: 'The Seven Deadly Sins: Wrath of the Gods', image: 'trend-1.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Gintama Movie 2: Kanketsu-hen - Yorozuya yo Eien', image: 'trend-2.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Shingeki no Kyojin Season 3 Part 2', image: 'trend-3.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Fullmetal Alchemist: Brotherhood', image: 'trend-4.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Shiratorizawa Gakuen Koukou', image: 'trend-5.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Code Geass: Hangyaku no Lelouch R2', image: 'trend-6.jpg', tags: ['Active', 'Movie'] }
-  //     ]
-  //   },
-  //   {
-  //     title: 'Romance',
-  //     imgBasePath: '/img/popular/',
-  //     items: [
-  //       { title: 'Sen to Chihiro no Kamikakushi', image: 'popular-1.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Kizumonogatari III: Reiket su-hen', image: 'popular-2.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Shirogane Tamashii hen Kouhan sen', image: 'popular-3.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Rurouni Kenshin: Meiji Kenkaku Romantan', image: 'popular-4.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Mushishi Zoku Shou 2nd Season', image: 'popular-5.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Monogatari Series: Second Season', image: 'popular-6.jpg', tags: ['Active', 'Movie'] }
-  //     ]
-  //   },
-  //   {
-  //     title: 'Terror',
-  //     imgBasePath: '/img/recent/',
-  //     items: [
-  //       { title: 'Great Teacher Onizuka', image: 'recent-1.jpg', tags: ['Active', 'Movie'] },
-  //       { title: "Fate/stay night Movie: Heaven's Feel - II. Lost", image: 'recent-2.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Mushishi Zoku Shou: Suzu no Shizuku', image: 'recent-3.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Fate/Zero 2nd Season', image: 'recent-4.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Kizumonogatari II: Nekket su-hen', image: 'recent-5.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'The Seven Deadly Sins: Wrath of the Gods', image: 'recent-6.jpg', tags: ['Active', 'Movie'] }
-  //     ]
-  //   },
-  //   {
-  //     title: 'Live Action',
-  //     imgBasePath: '/img/live/',
-  //     items: [
-  //       { title: 'Shouwa Genroku Rakugo Shinjuu', image: 'live-1.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Mushishi Zoku Shou 2nd Season', image: 'live-2.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Mushishi Zoku Shou: Suzu no Shizuku', image: 'live-3.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'The Seven Deadly Sins: Wrath of the Gods', image: 'live-4.jpg', tags: ['Active', 'Movie'] },
-  //       { title: "Fate/stay night Movie: Heaven's Feel - II. Lost", image: 'live-5.jpg', tags: ['Active', 'Movie'] },
-  //       { title: 'Kizumonogatari II: Nekketsu-hen', image: 'live-6.jpg', tags: ['Active', 'Movie'] }
-  //     ]
-  //   }
-  // ]
-  </script>
+defineOptions({ name: 'CategorySection' })
+
+const props = defineProps({
+  /** Preferencial (novo): lista de jogos */
+  products: { type: Array, default: () => [] },
+  /** Legado: para compatibilidade com ProductCategorySection */
+  items: { type: Array, default: () => [] },
+  sectionTitle: { type: String, default: '' },
+  limit: { type: Number, default: 12 },
+  coverSize: { type: String, default: 'cover_big' },
+})
+
+function resolveCoverUrl(p) {
+  if (!p) return ''
+  if (p.coverUrl) return p.coverUrl
+  if (p.cover?.url) {
+    const url = p.cover.url
+    if (typeof url === 'string' && url.startsWith('//')) return `https:${url}`
+    return url
+  }
+  if (p.cover?.image_id) {
+    return `https://images.igdb.com/igdb/image/upload/t_${props.coverSize}/${p.cover.image_id}.jpg`
+  }
+  if (p.artworks?.[0]?.image_id) {
+    return `https://images.igdb.com/igdb/image/upload/t_${props.coverSize}/${p.artworks[0].image_id}.jpg`
+  }
+  return ''
+}
+
+// Usa products, senão items (legado)
+const source = computed(() => (props.products?.length ? props.products : props.items) || [])
+
+const items = computed(() =>
+  source.value
+    .slice(0, props.limit)
+    .map(p => ({
+      id: p.id ?? p.game?.id ?? p.slug ?? '',
+      name: p.name ?? p.title ?? p.game?.name ?? 'Sem título',
+      coverUrl: resolveCoverUrl(p),
+    }))
+    .filter(x => x.id)
+)
+</script>
+
+<style scoped>
+.category-section { margin-bottom: 1.5rem; }
+.section-title { 
+  font-size: 1.125rem; 
+  font-weight: 600; 
+  margin-bottom: .75rem; 
+  color: #fff;
+}
+
+/* ====== Card list (igual Sidebar) ====== */
+.list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+@media (min-width: 1024px) { .list { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+.card {
+  position: relative;
+  display: block;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  text-decoration: none;
+  isolation: isolate;
+}
+
+.img {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  display: block;
+  background: #111827;
+}
+.placeholder { background: repeating-linear-gradient(45deg, #1f2937 0 10px, #111827 10px 20px); }
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,0) 35%, rgba(0,0,0,0.7) 100%);
+  opacity: 0.9;
+  transition: opacity 120ms ease-in-out;
+}
+.card:hover .overlay { opacity: 1; }
+
+.title {
+  position: absolute;
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.1;
+  font-weight: 600;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+</style>

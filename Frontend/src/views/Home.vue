@@ -1,124 +1,132 @@
 <template>
-    <div>
+  <div>
     <!-- Hero Section Begin -->
     <Carousel />
     <!-- Hero Section End -->
 
     <!-- Product Section Begin -->
     <section class="product spad">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-8 col-md-8">
-                  <!-- style="border: 2px solid red;" -->
-                  <CategorySection
-                    v-for="(games, genre) in gamesByGenre"
-                    :key="genre"
-                    :products="games"
-                    :sectionTitle="genre"
-                  />
-                </div>
-                <div class="col-lg-4 col-md-12">
-                  <!-- style="border: 2px solid blue;" -->
-                <Sidebar :limit="6" initialWindow="day" />
-                </div>
-            </div>
-        </div>
-    </section>
-<!-- Product Section End -->
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-md-8">
+            <!-- Seções por categoria/gênero -->
+            <CategorySection
+              v-for="(games, genre) in gamesByGenre"
+              :key="genre"
+              :products="games"
+              :sectionTitle="genre"
+              :limit="12"
+            />
 
-</div>
+            <!-- Estados -->
+            <div v-if="isLoading" class="mt-4">Carregando categorias…</div>
+            <div v-else-if="!isLoading && !Object.keys(gamesByGenre).length" class="mt-4">
+              Nenhuma categoria encontrada.
+            </div>
+            <div v-if="error" class="mt-2 text-danger">{{ error }}</div>
+          </div>
+
+          <div class="col-lg-4 col-md-12">
+            <!-- Sidebar: usa o mesmo layout de cards (list/card/img/title) -->
+            <Sidebar :items="sidebarItems" :limit="6" initialWindow="day" />
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- Product Section End -->
+  </div>
 </template>
 
 <script setup>
+import { ref, onMounted, computed } from 'vue'
 import Carousel from '../components/Carousel.vue'
 import Sidebar from '../components/Sidebar.vue'
 import CategorySection from '../components/CategorySection.vue'
+import api from '../api'
 
-import { ref, onMounted, computed } from 'vue';
-import api from '../api';
+const gamesByGenre = ref({}) // objeto: { "RPG": [...], "Aventura": [...], ... }
+const isLoading = ref(false)
+const error = ref('')
 
-const igdbGames = ref([]);
-const loading = ref(true);
-const error = ref(null);
-
-onMounted(async () => {
-  try {
-    const res = await api.get('/igdb/gamesWithGenres?q=');
-    console.log('IGDB raw result:', res.data); // ✅ Debug
-
-    igdbGames.value = res.data.map(game => ({
-      title: game.title,
-      image: game.image,
-      tags: game.genres
-    }));
-  } catch (err) {
-    console.error('❌ Error fetching IGDB games:', err);
-    error.value = 'Erro ao carregar os jogos';
-  } finally {
-    loading.value = false;
+// ===== Helpers de imagem (fallback caso algum item venha sem coverUrl pronto) =====
+function resolveCoverUrl(p, size = 'cover_big') {
+  if (!p) return ''
+  if (p.coverUrl) return p.coverUrl
+  if (p.cover?.url) {
+    const url = p.cover.url
+    if (typeof url === 'string' && url.startsWith('//')) return `https:${url}`
+    return url
   }
-});
+  if (p.cover?.image_id) return `https://images.igdb.com/igdb/image/upload/t_${size}/${p.cover.image_id}.jpg`
+  if (p.artworks?.[0]?.image_id) return `https://images.igdb.com/igdb/image/upload/t_${size}/${p.artworks[0].image_id}.jpg`
+  return ''
+}
 
-const gamesByGenre = computed(() => {
-  const genreMap = {};
+function normalizeBasic(g) {
+  return {
+    id: g.id ?? g.game?.id ?? g.slug ?? '',
+    name: g.name ?? g.title ?? g.game?.name ?? 'Sem título',
+    coverUrl: resolveCoverUrl(g),
+    rating: g.rating ?? g.total_rating ?? 0,
+    follows: g.follows ?? 0,
+    hypes: g.hypes ?? 0,
+  }
+}
 
-  igdbGames.value.forEach(game => {
-    const genres = game.tags?.length ? game.tags : ['Sem gênero'];
-    const firstGenre = genres[0]; // only the first genre matters
+async function fetchHomeGames() {
+  isLoading.value = true
+  error.value = ''
+  try {
+    // Endpoint unificado por categorias populares
+    const { data } = await api.get('/games/categories', {
+      params: {
+        window: 'day', // 'day' | 'week' | 'month' | 'year'
+        limit: 30,     // total de jogos base para distribuir entre categorias
+        per: 12        // máximo por categoria
+      }
+    })
+    gamesByGenre.value = data || {}
 
-    if (!genreMap[firstGenre]) {
-      genreMap[firstGenre] = [];
+    // Fallback: se backend retornar vazio por algum motivo, usa trending como categoria única
+    if (!Object.keys(gamesByGenre.value).length) {
+      const t = await api.get('/games/trending', { params: { limit: 60 } })
+      const arr = Array.isArray(t.data) ? t.data : t.data?.results ?? []
+      gamesByGenre.value = { Populares: arr }
     }
+  } catch (e) {
+    // fallback genérico para não quebrar a página
+    try {
+      const t = await api.get('/games/trending', { params: { limit: 60 } })
+      const arr = Array.isArray(t.data) ? t.data : t.data?.results ?? []
+      gamesByGenre.value = { Populares: arr }
+    } catch (err) {
+      error.value = 'Não foi possível carregar os jogos.'
+      console.error(err)
+    }
+  } finally {
+    isLoading.value = false
+  }
+}
 
-    genreMap[firstGenre].push(game);
-  });
+onMounted(fetchHomeGames)
 
-  return genreMap;
-});
-
-
-
-
-const acaoProducts = [
-  { title: 'The Seven Deadly Sins: Wrath of the Gods', image: '/img/trending/trend-1.jpg' },
-  { title: 'Gintama Movie 2', image: '/img/trending/trend-2.jpg' },
-  { title: 'Shingeki no Kyojin', image: '/img/trending/trend-3.jpg' },
-  { title: 'Fullmetal Alchemist', image: '/img/trending/trend-4.jpg' },
-  { title: 'Shiratorizawa Gakuen Koukou', image: '/img/trending/trend-5.jpg' },
-  { title: 'Code Geass R2', image: '/img/trending/trend-6.jpg' }
-]
-
-const romanceProducts = [
-  { title: 'Sen to Chihiro', image: '/img/popular/popular-1.jpg' },
-  { title: 'Kizumonogatari III', image: '/img/popular/popular-2.jpg' },
-  { title: 'Shirogane Tamashii', image: '/img/popular/popular-3.jpg' },
-  { title: 'Rurouni Kenshin', image: '/img/popular/popular-4.jpg' },
-  { title: 'Mushishi Zoku', image: '/img/popular/popular-5.jpg' },
-  { title: 'Monogatari Series', image: '/img/popular/popular-6.jpg' }
-]
-
-const terrorProducts = [
-  { title: 'GTO', image: '/img/recent/recent-1.jpg' },
-  { title: 'Fate Lost Butterfly', image: '/img/recent/recent-2.jpg' },
-  { title: 'Mushishi: Suzu no Shizuku', image: '/img/recent/recent-3.jpg' },
-  { title: 'Fate Zero S2', image: '/img/recent/recent-4.jpg' },
-  { title: 'Kizumonogatari II', image: '/img/recent/recent-5.jpg' },
-  { title: 'Seven Deadly Sins', image: '/img/recent/recent-6.jpg' }
-]
-
-const liveActionProducts = [
-  { title: 'Rakugo Shinjuu', image: '/img/live/live-1.jpg' },
-  { title: 'Mushishi Zoku S2', image: '/img/live/live-2.jpg' },
-  { title: 'Mushishi: Suzu', image: '/img/live/live-3.jpg' },
-  { title: 'Seven Deadly Sins', image: '/img/live/live-4.jpg' },
-  { title: 'Fate Heaven’s Feel', image: '/img/live/live-5.jpg' },
-  { title: 'Kizumonogatari II', image: '/img/live/live-6.jpg' }
-]
+// ===== Sidebar: pega os TOP a partir das categorias carregadas =====
+const sidebarItems = computed(() => {
+  // achata todas as categorias em um array só
+  const flat = Object.values(gamesByGenre.value).flat().map(normalizeBasic)
+  // score simples para ranquear
+  const scored = flat.map(g => ({
+    ...g,
+    _score: (g.rating || 0) * 2 + (g.hypes || 0) + (g.follows || 0) * 0.5,
+  }))
+  scored.sort((a, b) => b._score - a._score)
+  return scored.slice(0, 12).map(({ id, name, coverUrl }) => ({ id, name, coverUrl }))
+})
 </script>
 
 <style scoped>
-.product.spad {
-  background-color: #362849;
-  padding: 50px 0; /* if your template uses it */
-}
+.product.spad { padding-top: 2rem; padding-bottom: 2rem; }
+.mt-4 { margin-top: 1rem; }
+.mt-2 { margin-top: .5rem; }
+.text-danger { color: #dc2626; }
 </style>

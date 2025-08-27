@@ -2,15 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const igdbRoutes = require('./routes/igdb');
-const pricingRoutes = require('./routes/pricing');
-
-
-const pricingRepo = require('./repos/pricesRepo.memory');
-pricingRepo.ensureFiles().then(() => {
-  console.log('[pricing] storage pronto em ./data');
-}).catch((e) => {
-  console.error('[pricing] falhou ao preparar storage', e);
-});
+const router = express.Router();
 
 
 require('dotenv').config();
@@ -22,8 +14,8 @@ app.use(cors());
 app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/igdb', igdbRoutes);
-app.use('/api', pricingRoutes);
 app.use('/api', require('./routes/igdb-popular'));
+app.use('/api', igdbRoutes);
 
 app.get('/api/health', (req,res)=>res.json({ok:true}));
 
